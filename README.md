@@ -11,7 +11,7 @@ Sistema completo de gerenciamento de contatos implementado em C++ utilizando a e
 - Desenvolver interface amigável de linha de comando (CLI)
 - Implementar funcionalidades completas de CRUD
 - Fornecer sistema de validação e testes
-sla
+
 ##  Funcionalidades
 
 ###  Operações Básicas
