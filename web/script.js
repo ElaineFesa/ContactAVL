@@ -2,6 +2,8 @@
 let contacts = [];
 let selectedContacts = new Set();
 let currentSection = 'all-contacts';
+let sortOrder = 'asc'; // 'asc' ou 'desc'
+let currentSortField = 'name';
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,6 +14,7 @@ async function initializeApp() {
     showLoading();
     await loadContacts();
     setupEventListeners();
+    initializeSortControls();
     hideLoading();
     
     // Mostrar notificação de boas-vindas
@@ -66,6 +69,96 @@ function setupEventListeners() {
             handleCSVFile(files[0]);
         }
     });
+}
+
+// Sistema de Ordenação
+function initializeSortControls() {
+    // Adicionar controles de ordenação ao header da seção de contatos
+    const sectionHeader = document.querySelector('#all-contacts .section-header .section-actions');
+    if (sectionHeader && !document.getElementById('sortControls')) {
+        const sortControls = document.createElement('div');
+        sortControls.id = 'sortControls';
+        sortControls.className = 'sort-controls';
+        sortControls.innerHTML = `
+            <button class="btn-secondary sort-btn" onclick="changeSort('name')" id="sortByNameBtn">
+                <i class="fas fa-sort-alpha-down"></i> Nome A-Z
+            </button>
+            <button class="btn-secondary sort-btn" onclick="changeSort('email')" id="sortByEmailBtn">
+                <i class="fas fa-envelope"></i> Email
+            </button>
+        `;
+        sectionHeader.prepend(sortControls);
+    }
+    updateSortButtons();
+}
+
+function sortContacts(contacts, field = 'name', order = 'asc') {
+    return [...contacts].sort((a, b) => {
+        let aValue = (a[field] || '').toString().toLowerCase();
+        let bValue = (b[field] || '').toString().toLowerCase();
+        
+        if (order === 'asc') {
+            return aValue.localeCompare(bValue);
+        } else {
+            return bValue.localeCompare(aValue);
+        }
+    });
+}
+
+function changeSort(field = 'name') {
+    if (currentSortField === field) {
+        // Alternar entre asc e desc se for o mesmo campo
+        sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        // Novo campo, sempre começa com asc
+        currentSortField = field;
+        sortOrder = 'asc';
+    }
+    
+    updateSortButtons();
+    
+    // Recarregar a exibição atual
+    refreshCurrentSection();
+    
+    showNotification(`Ordenando por ${field === 'name' ? 'Nome' : 'Email'} ${sortOrder === 'asc' ? 'A-Z' : 'Z-A'}`, 'info');
+}
+
+function updateSortButtons() {
+    const nameBtn = document.getElementById('sortByNameBtn');
+    const emailBtn = document.getElementById('sortByEmailBtn');
+    
+    if (nameBtn && emailBtn) {
+        // Resetar todos os botões
+        nameBtn.classList.remove('active', 'asc', 'desc');
+        emailBtn.classList.remove('active', 'asc', 'desc');
+        
+        // Atualizar botão ativo
+        if (currentSortField === 'name') {
+            nameBtn.classList.add('active', sortOrder);
+            nameBtn.innerHTML = sortOrder === 'asc' ? 
+                '<i class="fas fa-sort-alpha-down"></i> Nome A-Z' : 
+                '<i class="fas fa-sort-alpha-up"></i> Nome Z-A';
+        } else {
+            emailBtn.classList.add('active', sortOrder);
+            emailBtn.innerHTML = sortOrder === 'asc' ? 
+                '<i class="fas fa-sort-alpha-down"></i> Email A-Z' : 
+                '<i class="fas fa-sort-alpha-up"></i> Email Z-A';
+        }
+    }
+}
+
+function refreshCurrentSection() {
+    switch(currentSection) {
+        case 'all-contacts':
+            displayContacts(contacts);
+            break;
+        case 'favorites':
+            displayFavorites();
+            break;
+        case 'search':
+            performSearch();
+            break;
+    }
 }
 
 // Navegação entre seções
@@ -164,6 +257,7 @@ async function removeContact(contactName) {
                 });
 
                 const result = await response.json();
+                closeConfirmModal();
                 
                 if (result.success) {
                     showNotification('Contato removido com sucesso!', 'success');
@@ -172,6 +266,7 @@ async function removeContact(contactName) {
                     showNotification(result.message || 'Erro ao remover contato', 'error');
                 }
             } catch (error) {
+                closeConfirmModal();
                 showNotification('Erro ao remover contato: ' + error.message, 'error');
             }
             hideLoading();
@@ -204,7 +299,10 @@ function performSearch() {
 function displaySearchResults(results, searchTerm) {
     const container = document.getElementById('searchResults');
     
-    if (results.length === 0) {
+    // Aplicar ordenação
+    const sortedResults = sortContacts(results, currentSortField, sortOrder);
+    
+    if (sortedResults.length === 0) {
         container.innerHTML = `
             <div class="no-results">
                 <i class="fas fa-search"></i>
@@ -217,10 +315,11 @@ function displaySearchResults(results, searchTerm) {
 
     container.innerHTML = `
         <div class="search-info">
-            <p>${results.length} resultado(s) encontrado(s) para "${searchTerm}"</p>
+            <p>${sortedResults.length} resultado(s) encontrado(s) para "${searchTerm}"</p>
+            <small>Ordenado por: ${currentSortField === 'name' ? 'Nome' : 'Email'} ${sortOrder === 'asc' ? 'A-Z' : 'Z-A'}</small>
         </div>
         <div class="contacts-grid">
-            ${results.map(contact => createContactCard(contact)).join('')}
+            ${sortedResults.map(contact => createContactCard(contact)).join('')}
         </div>
     `;
 }
@@ -229,7 +328,10 @@ function displaySearchResults(results, searchTerm) {
 function displayContacts(contactsToShow) {
     const container = document.getElementById('contactsGrid');
     
-    if (contactsToShow.length === 0) {
+    // Aplicar ordenação
+    const sortedContacts = sortContacts(contactsToShow, currentSortField, sortOrder);
+    
+    if (sortedContacts.length === 0) {
         container.innerHTML = `
             <div class="no-contacts">
                 <i class="fas fa-address-book"></i>
@@ -243,7 +345,7 @@ function displayContacts(contactsToShow) {
         return;
     }
 
-    container.innerHTML = contactsToShow.map(contact => createContactCard(contact)).join('');
+    container.innerHTML = sortedContacts.map(contact => createContactCard(contact)).join('');
 }
 
 // 5. Listar Favoritos
@@ -251,7 +353,10 @@ function displayFavorites() {
     const favorites = contacts.filter(contact => contact.favorite);
     const container = document.getElementById('favoritesGrid');
     
-    if (favorites.length === 0) {
+    // Aplicar ordenação
+    const sortedFavorites = sortContacts(favorites, currentSortField, sortOrder);
+    
+    if (sortedFavorites.length === 0) {
         container.innerHTML = `
             <div class="no-contacts">
                 <i class="fas fa-star"></i>
@@ -262,7 +367,7 @@ function displayFavorites() {
         return;
     }
 
-    container.innerHTML = favorites.map(contact => createContactCard(contact)).join('');
+    container.innerHTML = sortedFavorites.map(contact => createContactCard(contact)).join('');
 }
 
 // 6. Marcar/Desmarcar Favorito
@@ -311,6 +416,16 @@ async function loadDetailedStatistics() {
     } catch (error) {
         calculateLocalStatistics();
     }
+}
+
+function calculateLocalStatistics() {
+    const stats = {
+        total: contacts.length,
+        favorites: contacts.filter(c => c.favorite).length,
+        balanced: true, // Assumindo que está balanceado localmente
+        height: Math.ceil(Math.log2(contacts.length + 1)) // Estimativa
+    };
+    updateStatisticsDisplay(stats);
 }
 
 function updateStatisticsDisplay(stats) {
@@ -399,9 +514,12 @@ function exportCSV() {
         return;
     }
     
+    // Aplicar ordenação atual na exportação
+    const sortedContacts = sortContacts(contacts, currentSortField, sortOrder);
+    
     let csv = 'Nome,Telefone,Email,Favorito\n';
     
-    contacts.forEach(contact => {
+    sortedContacts.forEach(contact => {
         csv += `"${contact.name || ''}","${contact.phone || ''}","${contact.email || ''}","${contact.favorite}"\n`;
     });
 
@@ -611,13 +729,14 @@ function updateHeaderStats() {
 function createContactCard(contact) {
     return `
         <div class="contact-card ${contact.favorite ? 'favorite' : ''}">
-            <input type="checkbox" class="contact-checkbox" value="${contact.name}" 
-                   onchange="toggleSelection('${contact.name}', this.checked)"
-                   style="display: none;">
+            <div class="contact-checkbox-container">
+                <input type="checkbox" class="contact-checkbox" value="${contact.name}" 
+                       onchange="toggleSelection('${contact.name}', this.checked)">
+            </div>
             <div class="contact-header">
                 <div class="contact-name">${contact.name}</div>
-                <div class="contact-favorite">
-                    ${contact.favorite ? '<i class="fas fa-star"></i>' : ''}
+                <div class="contact-favorite" onclick="toggleFavorite('${contact.name}')">
+                    ${contact.favorite ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'}
                 </div>
             </div>
             <div class="contact-info">
@@ -686,6 +805,8 @@ async function removeSelected() {
                     errorCount++;
                 }
             }
+            
+            closeConfirmModal();
             
             let message = `${successCount} contato(s) removido(s) com sucesso!`;
             if (errorCount > 0) {
@@ -760,7 +881,7 @@ function getNotificationIcon(type) {
     }
 }
 
-// CSS para notificações (adicionar ao style.css)
+// CSS para notificações
 const notificationStyles = `
     .notification {
         position: fixed;
