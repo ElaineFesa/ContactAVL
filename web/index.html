@@ -3,92 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda AVL</title>
+    <title>Agenda AVL - Sistema Completo</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Sistema de Agenda AVL</h1>
-            <p>Gerenciamento eficiente de contatos com Árvore Balanceada</p>
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-address-book"></i>
+                    <h1>Agenda AVL</h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-badge">
+                        <i class="fas fa-users"></i>
+                        <span id="totalContacts">0</span>
+                    </div>
+                    <div class="stat-badge favorite">
+                        <i class="fas fa-star"></i>
+                        <span id="totalFavorites">0</span>
+                    </div>
+                    <div class="stat-badge balanced">
+                        <i class="fas fa-tree"></i>
+                        <span id="treeBalanced">Sim</span>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <div class="controls">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Buscar contato...">
-                <button onclick="searchContacts()">Buscar</button>
+        <!-- Sidebar de Navegação -->
+        <nav class="sidebar">
+            <div class="nav-section">
+                <h3>Gerenciar Contatos</h3>
+                <button class="nav-btn active" onclick="showSection('all-contacts')">
+                    <i class="fas fa-list"></i>
+                    Todos os Contatos
+                </button>
+                <button class="nav-btn" onclick="showSection('favorites')">
+                    <i class="fas fa-star"></i>
+                    Favoritos
+                </button>
+                <button class="nav-btn" onclick="showSection('search')">
+                    <i class="fas fa-search"></i>
+                    Buscar Contato
+                </button>
             </div>
-            
-            <div class="action-buttons">
-                <button class="btn-primary" onclick="showAddForm()">Adicionar</button>
-                <button class="btn-danger" onclick="removeSelected()">Remover</button>
-                <button class="btn-warning" onclick="toggleFavoriteSelected()">Favorito</button>
-                <button class="btn-success" onclick="loadContacts()">Atualizar</button>
-            </div>
-        </div>
 
-        <div class="stats">
-            <div class="stat-item">
-                <span class="stat-label">Total:</span>
-                <span class="stat-value" id="totalContacts">0</span>
+            <div class="nav-section">
+                <h3>Ações</h3>
+                <button class="nav-btn" onclick="showAddForm()">
+                    <i class="fas fa-plus"></i>
+                    Adicionar Contato
+                </button>
+                <button class="nav-btn" onclick="showSection('statistics')">
+                    <i class="fas fa-chart-bar"></i>
+                    Estatísticas
+                </button>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Favoritos:</span>
-                <span class="stat-value" id="totalFavorites">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Balanceada:</span>
-                <span class="stat-value" id="treeBalanced">Sim</span>
-            </div>
-        </div>
 
-        <div class="contacts-table">
-            <table id="contactsTable">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAll"></th>
-                        <th>Nome</th>
-                        <th>Telefone</th>
-                        <th>E-mail</th>
-                        <th>Favorito</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="contactsBody">
-                </tbody>
-            </table>
-        </div>
+            <div class="nav-section">
+                <h3>Arquivos</h3>
+                <button class="nav-btn" onclick="exportCSV()">
+                    <i class="fas fa-download"></i>
+                    Exportar CSV
+                </button>
+                <button class="nav-btn" onclick="showImportSection()">
+                    <i class="fas fa-upload"></i>
+                    Importar CSV
+                </button>
+            </div>
 
-        <!-- Modal para adicionar contato -->
-        <div id="contactModal" class="modal">
-            <div class="modal-content">
+            <div class="nav-section">
+                <h3>Sistema</h3>
+                <button class="nav-btn" onclick="runTests()">
+                    <i class="fas fa-vial"></i>
+                    Executar Testes
+                </button>
+                <button class="nav-btn btn-exit" onclick="exitApp()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <!-- Seção: Todos os Contatos -->
+            <section id="all-contacts" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Todos os Contatos</h2>
+                    <div class="section-actions">
+                        <button class="btn-primary" onclick="showAddForm()">
+                            <i class="fas fa-plus"></i> Novo
+                        </button>
+                        <button class="btn-danger" onclick="removeSelected()">
+                            <i class="fas fa-trash"></i> Remover Selecionados
+                        </button>
+                    </div>
+                </div>
+                <div class="contacts-grid" id="contactsGrid"></div>
+            </section>
+
+            <!-- Seção: Favoritos -->
+            <section id="favorites" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-star"></i> Contatos Favoritos</h2>
+                </div>
+                <div class="contacts-grid" id="favoritesGrid"></div>
+            </section>
+
+            <!-- Seção: Busca -->
+            <section id="search" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-search"></i> Buscar Contato</h2>
+                </div>
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="globalSearch" placeholder="Digite nome, telefone ou email...">
+                        <button class="btn-primary" onclick="performSearch()">Buscar</button>
+                    </div>
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+            </section>
+
+            <!-- Seção: Estatísticas -->
+            <section id="statistics" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Estatísticas da Árvore</h2>
+                </div>
+                <div class="stats-container">
+                    <div class="stat-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total de Contatos</h3>
+                                <span class="stat-number" id="statTotal">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon favorite">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Favoritos</h3>
+                                <span class="stat-number" id="statFavorites">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon balanced">
+                                <i class="fas fa-tree"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Árvore Balanceada</h3>
+                                <span class="stat-number" id="statBalanced">Sim</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon height">
+                                <i class="fas fa-ruler-vertical"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Altura da Árvore</h3>
+                                <span class="stat-number" id="statHeight">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="charts-container">
+                        <div class="chart">
+                            <h3>Distribuição</h3>
+                            <div class="chart-bar">
+                                <div class="bar-label">Favoritos</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="favoritesBar"></div>
+                                </div>
+                                <span id="favoritesPercent">0%</span>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Regulares</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill regular" id="regularsBar"></div>
+                                </div>
+                                <span id="regularsPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção: Importar CSV -->
+            <section id="import" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-upload"></i> Importar CSV</h2>
+                </div>
+                <div class="import-container">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-file-csv"></i>
+                        <h3>Arraste seu arquivo CSV aqui</h3>
+                        <p>ou clique para selecionar</p>
+                        <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                        <button class="btn-primary" onclick="document.getElementById('csvFile').click()">
+                            Selecionar Arquivo
+                        </button>
+                    </div>
+                    <div class="csv-preview" id="csvPreview"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Adicionar/Editar Contato -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fas fa-user-plus"></i> Adicionar Contato</h2>
                 <span class="close" onclick="closeModal()">&times;</span>
-                <h2 id="modalTitle">Adicionar Contato</h2>
-                <form id="contactForm">
-                    <div class="form-group">
-                        <label for="name">Nome:</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Telefone:</label>
-                        <input type="text" id="phone">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">E-mail:</label>
-                        <input type="email" id="email">
-                    </div>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="favorite">
-                            Contato Favorito
-                        </label>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" onclick="closeModal()">Cancelar</button>
-                        <button type="submit">Salvar</button>
-                    </div>
-                </form>
             </div>
+            <form id="contactForm" class="modal-form">
+                <div class="form-group">
+                    <label for="name"><i class="fas fa-user"></i> Nome *</label>
+                    <input type="text" id="name" required placeholder="Digite o nome completo">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Telefone</label>
+                        <input type="text" id="phone" placeholder="(11) 99999-9999">
+                    </div>
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
+                        <input type="email" id="email" placeholder="exemplo@email.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="favorite">
+                        <span class="checkmark"></span>
+                        <i class="fas fa-star"></i> Marcar como favorito
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Salvar Contato
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirmação</h2>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn-danger" id="confirmAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando...</p>
         </div>
     </div>
 
