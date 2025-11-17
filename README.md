@@ -1,10 +1,10 @@
-#  Sistema de Agenda de Contatos com Árvore AVL
+# Sistema de Agenda de Contatos com Árvore AVL
 
-##  Descrição do Projeto
+## Descrição do Projeto
 
 Sistema completo de gerenciamento de contatos implementado em C++ utilizando a estrutura de dados **Árvore AVL** para garantir eficiência nas operações de inserção, remoção e busca. Desenvolvido como trabalho acadêmico para a disciplina de Estrutura de Dados.
 
-##  Objetivos
+## Objetivos
 
 - Implementar uma árvore AVL funcional para armazenamento de contatos
 - Garantir complexidade O(log n) para operações básicas
@@ -12,21 +12,20 @@ Sistema completo de gerenciamento de contatos implementado em C++ utilizando a e
 - Implementar funcionalidades completas de CRUD
 - Fornecer sistema de validação e testes
 
-##  Funcionalidades
+## Funcionalidades
 
-###  Operações Básicas
--  **Adicionar contato** - Inserção balanceada na AVL
--  **Remover contato** - Remoção com rebalanceamento
--  **Buscar contato** - Busca eficiente O(log n)
--  **Listar contatos** - Ordem alfabética automática
--  **Gerenciar favoritos** - Marcar/desmarcar contatos importantes
--  **Estatísticas da árvore** - Verficação de balanceamento
--  **Importação/Exportação CSV** - Backup dos dados
--  **Testes unitários** - Validação do sistema
--  **Interface intuitiva** - Menu com emojis e formatação
+### Operações Básicas
+- **Adicionar contato** - Inserção balanceada na AVL
+- **Remover contato** - Remoção com rebalanceamento
+- **Buscar contato** - Busca eficiente O(log n)
+- **Listar contatos** - Ordem alfabética automática
+- **Gerenciar favoritos** - Marcar/desmarcar contatos importantes
+- **Estatísticas da árvore** - Verificação de balanceamento
+- **Importação/Exportação CSV** - Backup dos dados
+- **Testes unitários** - Validação do sistema
+- **Interface intuitiva** - Menu com emojis e formatação
 
-
-##  Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 ContactAVL/
@@ -42,9 +41,9 @@ ContactAVL/
 └── README.md              # Este arquivo
 ```
 
-##  Estruturas de Dados Implementadas
+## Estruturas de Dados Implementadas
 
-###  Árvore AVL (avl_tree.h)
+### Árvore AVL (avl_tree.h)
 ```cpp
 template<typename T>
 class AVLTree {
@@ -65,7 +64,7 @@ class AVLTree {
 };
 ```
 
-###  Classe Contato (contact.h)
+### Classe Contato (contact.h)
 ```cpp
 class Contact {
 private:
@@ -86,7 +85,7 @@ public:
 };
 ```
 
-##  Como Compilar e Executar
+## Como Compilar e Executar
 
 ### Pré-requisitos
 - Compilador C++ com suporte a C++17 (GCC 7+ ou MinGW)
@@ -112,7 +111,7 @@ g++ tests/test_avl.cpp src/contact.cpp -Iinclude -o test_avl.exe -std=c++17
 ./test_avl.exe
 ```
 
-##  Como Usar o Sistema
+## Como Usar o Sistema
 
 ### Menu Principal
 ```
@@ -180,7 +179,7 @@ Beatriz Santos,11-3333-3333,beatriz@email.com,true
 - Delimitador: Vírgula
 - Cabeçalho obrigatório
 
-##  Testes e Validação
+## Testes e Validação
 
 ### Suite de Testes Implementada
 ```cpp
@@ -203,7 +202,7 @@ O sistema verifica automaticamente:
 - **Rebalanceamento** após inserções/remoções
 - **Preservação da ordem** dos elementos
 
-##  Complexidade das Operações
+## Complexidade das Operações
 
 | Operação | Complexidade | Descrição |
 |----------|--------------|-----------|
@@ -213,7 +212,7 @@ O sistema verifica automaticamente:
 | Listagem | O(n) | Travessia in-order |
 | Favoritos | O(n) | Filtragem durante travessia |
 
-##  Características Técnicas
+## Características Técnicas
 
 ### Implementação da AVL
 - **Smart Pointers**: Gerenciamento automático de memória
@@ -227,8 +226,7 @@ O sistema verifica automaticamente:
 - Verificação de arquivos CSV
 - Mensagens de erro descritivas
 
-
-##  Exemplos de Código
+## Exemplos de Código
 
 ### Inserção na AVL
 ```cpp
@@ -257,7 +255,6 @@ exportToCSV(agenda);  // Cria arquivo "contatos.csv"
 - Compreensão de algoritmos de balanceamento
 - Manipulação de ponteiros e memória
 
-
 ### Algoritmos
 - Análise de complexidade assintótica
 - Recursividade e divisão e conquista
@@ -273,5 +270,6 @@ exportToCSV(agenda);  // Cria arquivo "contatos.csv"
 - [ ] Backup automático
 - [ ] Histórico de operações
 
-
 ---
+
+**Desenvolvido como trabalho acadêmico para a disciplina de Estrutura de Dados**
